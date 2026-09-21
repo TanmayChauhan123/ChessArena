@@ -1,0 +1,682 @@
+.home-page {
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar {
+  height: 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-button {
+  border: 1px solid #2a2f38;
+  background: transparent;
+  color: #f5f5f5;
+
+  padding: 10px 20px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+.nav-button:hover {
+  border-color: #596476;
+}
+
+.nav-button.primary {
+  background: #d9b46f;
+  border-color: #d9b46f;
+  color: #111;
+}
+
+.nav-button.primary:hover {
+  background: #e4c384;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  max-width: 1200px;
+  min-height: calc(100vh - 80px);
+  margin: 0 auto;
+  padding: 70px 32px 100px;
+
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: 70px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.eyebrow {
+  color: #d9b46f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(52px, 6vw, 82px);
+  line-height: 0.98;
+  letter-spacing: -3px;
+  margin-bottom: 28px;
+}
+
+.hero h1 span {
+  color: #d9b46f;
+}
+
+.hero-description {
+  max-width: 560px;
+  color: #9ba3b0;
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hero-button {
+  padding: 14px 24px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.hero-button.primary {
+  border: 1px solid #d9b46f;
+  background: #d9b46f;
+  color: #111;
+}
+
+.hero-button.primary:hover {
+  background: #e4c384;
+  transform: translateY(-2px);
+}
+
+.hero-button.secondary {
+  border: 1px solid #303641;
+  background: #12151b;
+  color: #f5f5f5;
+}
+
+.hero-button.secondary:hover {
+  border-color: #596476;
+  transform: translateY(-2px);
+}
+
+/* ---------- Features ---------- */
+
+.features {
+  display: flex;
+  gap: 28px;
+  margin-top: 58px;
+  flex-wrap: wrap;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feature > span {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid #2a2f38;
+  border-radius: 8px;
+
+  background: #11141a;
+  font-size: 18px;
+}
+
+.feature strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.feature p {
+  color: #727b89;
+  font-size: 11px;
+}
+
+/* ---------- Chess Board ---------- */
+
+.hero-board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 460px;
+}
+
+.board-glow {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+
+  background: rgba(217, 180, 111, 0.08);
+  filter: blur(70px);
+  border-radius: 50%;
+}
+
+.mini-board {
+  width: 420px;
+  height: 420px;
+
+  flex: 0 0 420px;
+
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+
+  position: relative;
+
+  border: 8px solid #1a1e24;
+  border-radius: 4px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px #303641;
+}
+
+.chess-square {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+.light-square {
+  background: #c8a873;
+}
+
+.dark-square {
+  background: #343a35;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 850px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 50px;
+  }
+
+  .hero-description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .features {
+    justify-content: center;
+  }
+
+  .hero-board {
+    order: -1;
+  }
+
+  .mini-board {
+    width: min(380px, 75vw);
+    height: min(380px, 75vw);
+    flex-basis: min(380px, 75vw);
+  }
+}
+
+@media (max-width: 550px) {
+  .mini-board {
+    width: min(320px, 82vw);
+    height: min(320px, 82vw);
+    flex-basis: min(320px, 82vw);
+  }
+
+  .chess-piece {
+    font-size: 32px;
+  }
+
+  .navbar {
+    padding: 0 18px;
+  }
+
+  .logo {
+    font-size: 21px;
+  }
+
+  .nav-button {
+    padding: 8px 13px;
+  }
+
+  .hero {
+    padding: 45px 18px 70px;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    letter-spacing: -2px;
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+  }
+}
+
+/* ---------- Floating Chess Pieces ---------- */
+.home-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+
+  background:
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(70, 130, 180, 0.18),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 25%,
+      rgba(217, 180, 111, 0.13),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 50% 90%,
+      rgba(60, 120, 130, 0.15),
+      transparent 30%
+    );
+}
+
+.floating-pieces {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+
+  pointer-events: none;
+  z-index: -2;
+}
+
+.floating-piece {
+  position: absolute;
+
+  font-family: "Times New Roman", serif;
+  color: rgba(217, 180, 111, 0.14);
+
+  user-select: none;
+
+  text-shadow:
+    0 0 20px rgba(217, 180, 111, 0.08),
+    0 0 40px rgba(217, 180, 111, 0.04);
+
+  animation:
+    floatAround var(--duration) ease-in-out infinite alternate,
+    pieceRotate var(--rotation) ease-in-out infinite alternate;
+}
+
+/* Individual pieces */
+
+.piece-1 {
+  left: 5%;
+  top: 15%;
+  font-size: 55px;
+  --duration: 12s;
+  --rotation: 7s;
+}
+
+.piece-2 {
+  left: 18%;
+  top: 75%;
+  font-size: 38px;
+  --duration: 15s;
+  --rotation: 9s;
+}
+
+.piece-3 {
+  left: 32%;
+  top: 8%;
+  font-size: 70px;
+  --duration: 17s;
+  --rotation: 11s;
+}
+
+.piece-4 {
+  left: 47%;
+  top: 82%;
+  font-size: 45px;
+  --duration: 13s;
+  --rotation: 8s;
+}
+
+.piece-5 {
+  left: 61%;
+  top: 12%;
+  font-size: 62px;
+  --duration: 19s;
+  --rotation: 10s;
+}
+
+.piece-6 {
+  left: 76%;
+  top: 65%;
+  font-size: 42px;
+  --duration: 14s;
+  --rotation: 7s;
+}
+
+.piece-7 {
+  left: 88%;
+  top: 20%;
+  font-size: 58px;
+  --duration: 16s;
+  --rotation: 12s;
+}
+
+.piece-8 {
+  left: 93%;
+  top: 82%;
+  font-size: 35px;
+  --duration: 11s;
+  --rotation: 8s;
+}
+
+.piece-9 {
+  left: 9%;
+  top: 48%;
+  font-size: 32px;
+  --duration: 18s;
+  --rotation: 13s;
+}
+
+.piece-10 {
+  left: 38%;
+  top: 55%;
+  font-size: 30px;
+  --duration: 14s;
+  --rotation: 9s;
+}
+
+.piece-11 {
+  left: 69%;
+  top: 40%;
+  font-size: 34px;
+  --duration: 20s;
+  --rotation: 12s;
+}
+
+.piece-12 {
+  left: 82%;
+  top: 48%;
+  font-size: 48px;
+  --duration: 15s;
+  --rotation: 10s;
+}
+
+/* Continuous floating movement */
+
+@keyframes floatAround {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  25% {
+    transform: translate3d(35px, -45px, 0);
+  }
+
+  50% {
+    transform: translate3d(-25px, -85px, 0);
+  }
+
+  75% {
+    transform: translate3d(45px, -35px, 0);
+  }
+
+  100% {
+    transform: translate3d(-30px, 30px, 0);
+  }
+}
+
+@keyframes pieceRotate {
+  0% {
+    rotate: -8deg;
+  }
+
+  50% {
+    rotate: 8deg;
+  }
+
+  100% {
+    rotate: -5deg;
+  }
+}
+
+/* Keep the main UI above the background */
+
+.navbar,
+.hero {
+  position: relative;
+  z-index: 1;
+}
+
+/* Respect users who prefer reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-piece {
+    animation: none;
+  }
+}
+
+/* ---------- Draggable Board Pieces ---------- */
+
+.chess-piece {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  font-family: "Times New Roman", serif;
+  font-size: 42px;
+  line-height: 1;
+
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.55));
+
+  transition: transform 0.15s ease;
+}
+
+.chess-piece:hover {
+  transform: scale(1.08);
+}
+
+.chess-piece:active {
+  cursor: grabbing;
+}
+
+.chess-piece:active {
+  cursor: grabbing;
+}
+
+.dragged-board-piece {
+  position: fixed;
+
+  transform: translate(-50%, -50%) scale(1.15);
+
+  z-index: 10000;
+
+  font-family: "Times New Roman", serif;
+  font-size: 58px;
+  line-height: 1;
+
+  pointer-events: none;
+  user-select: none;
+
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.6));
+}
+
+.black-piece {
+  color: #111315;
+
+  -webkit-text-stroke: 1px #080909;
+
+  text-shadow: 0 3px 5px rgba(0, 0, 0, 0.75);
+}
+
+.white-piece {
+  color: #f4f4f4;
+
+  -webkit-text-stroke: 0.5px #d0d0d0;
+
+  text-shadow: 0 3px 5px rgba(0, 0, 0, 0.75);
+}
+
+.roaming-chess-piece {
+  position: fixed;
+
+  z-index: 9999;
+
+  font-family: "Times New Roman", serif;
+  font-size: 58px;
+  line-height: 1;
+
+  pointer-events: none;
+  user-select: none;
+
+  animation: roamChessPiece var(--duration) ease-in-out var(--delay) infinite
+    alternate;
+
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.55));
+}
+
+.roaming-chess-piece.returning-chess-piece {
+  animation: returnToBoard 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes roamChessPiece {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  20% {
+    transform: translate(calc(-50% + 120px), calc(-50% - 80px)) rotate(8deg);
+  }
+
+  40% {
+    transform: translate(calc(-50% + 200px), calc(-50% + 100px)) rotate(-10deg);
+  }
+
+  60% {
+    transform: translate(calc(-50% - 140px), calc(-50% + 150px)) rotate(12deg);
+  }
+
+  80% {
+    transform: translate(calc(-50% - 200px), calc(-50% - 70px)) rotate(-8deg);
+  }
+
+  100% {
+    transform: translate(calc(-50% + 60px), calc(-50% - 170px)) rotate(5deg);
+  }
+}
+
+.returning-chess-piece {
+  animation: returnToBoard 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes returnToBoard {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+
+  35% {
+    transform: translate(-50%, -50%) scale(1.12) rotate(8deg);
+  }
+
+  70% {
+    transform: translate(-50%, -50%) scale(0.95) rotate(-4deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+}
+
+/* ---------- Landing Page Moving Chess Pieces ---------- */
+
+.home-page .dragged-board-piece.home-black-piece,
+.home-page .roaming-chess-piece.home-black-piece {
+  color: #111315;
+  -webkit-text-stroke: 1px #080909;
+  text-shadow:
+    0 3px 5px rgba(0, 0, 0, 0.75),
+    0 0 8px rgba(0, 0, 0, 0.35);
+}
+
+.home-page .dragged-board-piece.home-white-piece,
+.home-page .roaming-chess-piece.home-white-piece {
+  color: #f4f4f4;
+  -webkit-text-stroke: 0.5px #d0d0d0;
+  text-shadow:
+    0 3px 5px rgba(0, 0, 0, 0.55),
+    0 0 8px rgba(255, 255, 255, 0.15);
+}

@@ -1,7 +1,9 @@
 import express from "express";
+import authRoutes from "./routes/authRoutes.js";
 import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
+import userRoutes from "./routes/userRoutes.js";
 import helmet from "helmet";
 import { initializeSocket } from "./sockets/socketServer.js";
 
@@ -22,6 +24,8 @@ app.use(
 );
 
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
