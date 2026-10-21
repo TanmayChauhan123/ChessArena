@@ -1,0 +1,241 @@
+.dashboard-page {
+  min-height: 100vh;
+  padding: 0 7%;
+  color: #f1f5f9;
+  background:
+    radial-gradient(ellipse at 75% 15%, #173c39 0%, transparent 38%),
+    linear-gradient(135deg, #0b1218, #111e25 55%, #0b1218);
+  font-family: inherit;
+}
+
+.dashboard-nav {
+  min-height: 88px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid #ffffff18;
+}
+
+.dashboard-logo {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.dashboard-username {
+  color: #cbd5e1;
+}
+
+.dashboard-logout,
+.dashboard-primary,
+.dashboard-secondary {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+
+.dashboard-logout,
+.dashboard-secondary {
+  color: #e2e8f0;
+  background: #ffffff08;
+  border: 1px solid #ffffff28;
+}
+
+.dashboard-primary {
+  color: #081513;
+  background: #69e0bd;
+  border: 1px solid #69e0bd;
+}
+
+.dashboard-logout,
+.dashboard-primary,
+.dashboard-secondary {
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    font-weight 0.2s ease;
+}
+
+.dashboard-logout:hover,
+.dashboard-primary:hover,
+.dashboard-secondary:hover {
+  transform: translateY(-2px);
+  font-weight: 800;
+}
+
+.dashboard-hero {
+  max-width: 780px;
+  padding: 88px 0 62px;
+}
+
+.dashboard-eyebrow {
+  color: #69e0bd;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+.dashboard-primary:hover {
+  background: #82ebcc;
+}
+
+.dashboard-secondary:hover,
+.dashboard-logout:hover {
+  background: #ffffff12;
+}
+
+.dashboard-hero h1 {
+  margin: 22px 0;
+  font-size: clamp(2.8rem, 6vw, 5.3rem);
+  line-height: 1.05;
+  letter-spacing: -3px;
+}
+
+.dashboard-hero h1 span {
+  color: #69e0bd;
+}
+
+.dashboard-description {
+  max-width: 540px;
+  color: #aab8c5;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  padding-bottom: 70px;
+}
+
+.dashboard-card {
+  padding: 26px;
+  border: 1px solid #ffffff18;
+  border-radius: 18px;
+  background: #ffffff07;
+}
+
+.dashboard-card-icon {
+  color: #69e0bd;
+  font-size: 1.8rem;
+}
+
+.dashboard-card p {
+  margin: 18px 0 8px;
+  color: #aab8c5;
+}
+
+.dashboard-card h2 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.dashboard-muted {
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.dashboard-footer {
+  padding: 24px 0;
+  border-top: 1px solid #ffffff18;
+  color: #718096;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .dashboard-page {
+    padding: 0 5%;
+  }
+
+  .dashboard-nav {
+    min-height: 75px;
+  }
+
+  .dashboard-logo {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-nav-right {
+    gap: 10px;
+  }
+
+  .dashboard-username {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dashboard-hero {
+    padding: 60px 0 42px;
+  }
+
+  .dashboard-hero h1 {
+    letter-spacing: -1.5px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-performance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin: 0 0 48px;
+  padding: 30px;
+  border: 1px solid #ffffff18;
+  border-radius: 18px;
+  background: linear-gradient(120deg, #16332f, #111e25);
+}
+
+.dashboard-performance > div {
+  max-width: 560px;
+}
+
+.dashboard-performance h2 {
+  margin: 12px 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.dashboard-performance > div > p:last-child {
+  color: #aab8c5;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .dashboard-nav-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard-performance {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 22px;
+  }
+}

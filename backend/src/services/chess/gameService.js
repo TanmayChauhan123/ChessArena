@@ -4,9 +4,15 @@ const games = new Map();
 export const createGame = (gameId) => {
   const game = {
     gameId,
+    historySaved: false,
     whitePlayer: null,
     blackPlayer: null,
     spectators: new Set(),
+
+    whiteUserId: null,
+    blackUserId: null,
+
+    disconnectedPlayers: new Map(),
 
     // Every game gets its own chess board
     chess: new Chess(),
@@ -43,8 +49,32 @@ export const getPublicGameState = (game) => {
 };
 
 export const makeChessMove = (game, move) => {
+  if (!game) {
+    return {
+      success: false,
+      message: "Game not found",
+    };
+  }
+
+  if (game.status !== "active") {
+    return {
+      success: false,
+      message: "Game is not active",
+    };
+  }
+
+  if (!move || !move.from || !move.to) {
+    return {
+      success: false,
+      message: "Invalid move format",
+    };
+  }
+
   try {
     const result = game.chess.move(move);
+
+    // A successful move cancels any pending draw offer.
+    game.drawOffer = null;
 
     let gameResult = null;
 
@@ -216,48 +246,108 @@ export const deleteGame = (gameId) => {
   games.delete(gameId);
 };
 
-export const joinGame = (gameId, socketId) => {
+export const joinGame = (gameId, socketId, userId, isSocketConnected) => {
   const game = games.get(gameId);
 
   if (!game) {
+    return { success: false, message: "Game not found" };
+  }
+
+  if (game.status === "finished") {
     return {
       success: false,
-      message: "Game not found",
+      message: "This game has already finished",
     };
   }
 
-  if (!game.whitePlayer) {
-    game.whitePlayer = socketId;
+  // Normalize IDs in case one is a string and the other is a number.
+  const sameUser = (a, b) => a != null && b != null && String(a) === String(b);
 
-    if (game.blackPlayer) {
-      game.status = "active";
+  // Restore the original White player's seat.
+  if (sameUser(game.whiteUserId, userId)) {
+    if (
+      game.whitePlayer &&
+      game.whitePlayer !== socketId &&
+      isSocketConnected(game.whitePlayer)
+    ) {
+      return {
+        success: false,
+        message: "White player is already connected",
+      };
     }
+
+    game.whitePlayer = socketId;
+    game.disconnectedPlayers.delete(userId);
+
+    if (game.blackPlayer) game.status = "active";
 
     return {
       success: true,
       role: "white",
       game,
+      reconnected: true,
     };
   }
 
-  if (!game.blackPlayer) {
+  // Restore the original Black player's seat.
+  if (sameUser(game.blackUserId, userId)) {
+    if (
+      game.blackPlayer &&
+      game.blackPlayer !== socketId &&
+      isSocketConnected(game.blackPlayer)
+    ) {
+      return {
+        success: false,
+        message: "Black player is already connected",
+      };
+    }
+
     game.blackPlayer = socketId;
-    game.status = "active";
+    game.disconnectedPlayers.delete(userId);
+
+    if (game.whitePlayer) game.status = "active";
 
     return {
       success: true,
       role: "black",
       game,
+      reconnected: true,
     };
+  }
+
+  // Prevent duplicate handling of the same socket.
+  if (game.whitePlayer === socketId) {
+    return { success: true, role: "white", game };
+  }
+
+  if (game.blackPlayer === socketId) {
+    return { success: true, role: "black", game };
+  }
+
+  if (game.spectators.has(socketId)) {
+    return { success: true, role: "spectator", game };
+  }
+
+  // Assign seats that have never been reserved.
+  if (!game.whitePlayer && !game.whiteUserId) {
+    game.whitePlayer = socketId;
+    game.whiteUserId = userId ?? null;
+    game.status = game.blackPlayer ? "active" : "waiting";
+
+    return { success: true, role: "white", game };
+  }
+
+  if (!game.blackPlayer && !game.blackUserId) {
+    game.blackPlayer = socketId;
+    game.blackUserId = userId ?? null;
+    game.status = "active";
+
+    return { success: true, role: "black", game };
   }
 
   game.spectators.add(socketId);
 
-  return {
-    success: true,
-    role: "spectator",
-    game,
-  };
+  return { success: true, role: "spectator", game };
 };
 
 export const leaveGame = (gameId, socketId) => {

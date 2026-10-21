@@ -1,12 +1,14 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { findUserById } from "../models/userModel.js";
+import { saveCompletedGame } from "../services/chess/gameHistoryService.js";
 
 import {
   createGame,
   getGame,
   joinGame,
   leaveGame,
+  deleteGame,
   getPublicGameState,
   makeChessMove,
   resignGame,
@@ -51,15 +53,48 @@ export const initializeSocket = (server) => {
     }
   });
 
+  const saveGameHistoryOnce = async (game, socket, gameResult) => {
+    if (!game || game.historySaved || game.historySaving) return;
+
+    game.historySaving = true;
+
+    const outcome =
+      gameResult?.winner === "white"
+        ? "white"
+        : gameResult?.winner === "black"
+          ? "black"
+          : "draw";
+
+    try {
+      const saved = await saveCompletedGame(game, outcome);
+
+      game.historySaved = true;
+
+      io.to(game.gameId).emit("game:history:saved", saved);
+      console.log("Game history saved:", saved.gameId);
+    } catch (error) {
+      console.error("Failed to save game history:", error.message);
+
+      socket.emit("game:error", {
+        message: "Game ended, but saving game history failed.",
+      });
+    } finally {
+      game.historySaving = false;
+    }
+  };
+
   // Connection handler
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.user.username} (${socket.id})`);
+    console.log("SOCKET CONNECTED:", {
+      username: socket.user.username,
+      userId: socket.user.id,
+      socketId: socket.id,
+    });
 
     // Create a new game
-    socket.on("game:create", (gameId) => {
-      const existingGame = getGame(gameId);
 
-      if (existingGame) {
+    socket.on("game:create", (gameId) => {
+      if (getGame(gameId)) {
         socket.emit("game:error", {
           message: "Game ID already exists",
         });
@@ -67,17 +102,23 @@ export const initializeSocket = (server) => {
       }
 
       const game = createGame(gameId);
+      const result = joinGame(gameId, socket.id, socket.user.id, (socketId) =>
+        io.sockets.sockets.has(socketId),
+      );
+
+      if (!result.success || result.role !== "white") {
+        deleteGame(gameId);
+        socket.emit("game:error", {
+          message: "Could not assign the creator to the White seat.",
+        });
+        return;
+      }
 
       socket.join(gameId);
-
-      const result = joinGame(gameId, socket.id);
-
       socket.emit("game:created", {
-        game: getPublicGameState(result.game),
-        role: result.role,
+        game: getPublicGameState(game),
+        role: "white",
       });
-
-      console.log(`Game created: ${gameId}`);
     });
 
     // Join an existing game
@@ -91,9 +132,58 @@ export const initializeSocket = (server) => {
         return;
       }
 
-      const result = joinGame(gameId, socket.id);
+      const userId = String(socket.user.id);
+
+      // If this user already owns a seat, disconnect their previous socket
+      // before assigning the seat to the new connection.
+      const sameUser = (a, b) =>
+        a != null && b != null && String(a) === String(b);
+
+      let oldSocketId = null;
+
+      if (sameUser(game.whiteUserId, userId)) {
+        oldSocketId = game.whitePlayer;
+      } else if (sameUser(game.blackUserId, userId)) {
+        oldSocketId = game.blackPlayer;
+      }
+
+      if (oldSocketId && oldSocketId !== socket.id) {
+        const oldSocket = io.sockets.sockets.get(oldSocketId);
+
+        if (oldSocket) {
+          oldSocket.disconnect(true);
+        } else {
+          if (game.whitePlayer === oldSocketId) {
+            game.whitePlayer = null;
+          }
+
+          if (game.blackPlayer === oldSocketId) {
+            game.blackPlayer = null;
+          }
+        }
+      }
+
+      const result = joinGame(gameId, socket.id, socket.user.id, (socketId) =>
+        io.sockets.sockets.has(socketId),
+      );
+      if (!result.success) {
+        socket.emit("game:error", {
+          message: result.message,
+        });
+        return;
+      }
 
       socket.join(gameId);
+      if (result.reconnected) {
+        socket.emit("game:state", {
+          game: getPublicGameState(result.game),
+        });
+
+        io.to(gameId).emit("game:player-reconnected", {
+          role: result.role,
+          username: socket.user.username,
+        });
+      }
 
       socket.emit("game:joined", {
         game: getPublicGameState(result.game),
@@ -108,7 +198,14 @@ export const initializeSocket = (server) => {
     });
 
     // Make chess move
-    socket.on("game:move", ({ gameId, move }) => {
+    socket.on("game:move", ({ gameId, move } = {}) => {
+      if (!gameId) {
+        socket.emit("game:error", {
+          message: "Game ID is required",
+        });
+        return;
+      }
+
       const game = getGame(gameId);
 
       if (!game) {
@@ -118,6 +215,7 @@ export const initializeSocket = (server) => {
         return;
       }
 
+      // Only the two assigned players may move.
       let playerColor = null;
 
       if (game.whitePlayer === socket.id) {
@@ -126,11 +224,20 @@ export const initializeSocket = (server) => {
         playerColor = "b";
       } else {
         socket.emit("game:error", {
-          message: "Spectators cannot make moves",
+          message: "Only players can make moves",
         });
         return;
       }
 
+      // Do not allow moves before the game starts or after it ends.
+      if (game.status !== "active") {
+        socket.emit("game:error", {
+          message: "Game is not active",
+        });
+        return;
+      }
+
+      // Enforce turn order on the server.
       if (game.chess.turn() !== playerColor) {
         socket.emit("game:error", {
           message: "It is not your turn",
@@ -138,6 +245,7 @@ export const initializeSocket = (server) => {
         return;
       }
 
+      // Validate the move through the game service.
       const result = makeChessMove(game, move);
 
       if (!result.success) {
@@ -147,11 +255,23 @@ export const initializeSocket = (server) => {
         return;
       }
 
+      // Broadcast the accepted move and updated position.
       io.to(gameId).emit("game:move", {
         move: result.move,
         game: result.game,
         result: result.result,
       });
+
+      // Notify both players if the game has ended.
+
+      if (result.result) {
+        void saveGameHistoryOnce(game, socket, result.result);
+
+        io.to(gameId).emit("game:ended", {
+          result: result.result,
+          game: result.game,
+        });
+      }
     });
 
     // Resign from game
@@ -174,6 +294,8 @@ export const initializeSocket = (server) => {
         });
         return;
       }
+
+      void saveGameHistoryOnce(game, socket, result.result);
 
       io.to(gameId).emit("game:ended", {
         result: result.result,
@@ -225,6 +347,8 @@ export const initializeSocket = (server) => {
         });
         return;
       }
+
+      void saveGameHistoryOnce(game, socket, result.result);
 
       io.to(gameId).emit("game:ended", {
         result: result.result,
@@ -294,12 +418,44 @@ export const initializeSocket = (server) => {
       });
     });
 
-    // Disconnect
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
+    socket.on("disconnecting", () => {
+      for (const gameId of socket.rooms) {
+        const game = getGame(gameId);
 
-      // For now, game cleanup will be added
-      // when we build proper connection tracking.
+        if (!game) continue;
+
+        let userId = null;
+        let role = null;
+
+        if (game.whitePlayer === socket.id) {
+          userId = game.whiteUserId;
+          role = "white";
+          game.whitePlayer = null;
+        } else if (game.blackPlayer === socket.id) {
+          userId = game.blackUserId;
+          role = "black";
+          game.blackPlayer = null;
+        } else if (game.spectators.has(socket.id)) {
+          game.spectators.delete(socket.id);
+          continue;
+        } else {
+          continue;
+        }
+
+        if (userId != null) {
+          game.disconnectedPlayers.set(userId, {
+            role,
+            disconnectedAt: Date.now(),
+          });
+        }
+
+        io.to(gameId).emit("game:player-disconnected", {
+          role,
+          username: socket.user.username,
+        });
+
+        console.log(`${role} disconnected from game ${gameId}`);
+      }
     });
   });
 
