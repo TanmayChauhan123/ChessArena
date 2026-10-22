@@ -41,6 +41,9 @@ export const getPublicGameState = (game) => {
     fen: game.chess.fen(),
     turn: game.chess.turn(),
 
+    // Complete move history, including captures and promotions.
+    history: game.chess.history({ verbose: true }),
+
     isGameOver: game.chess.isGameOver(),
     isCheck: game.chess.isCheck(),
     isCheckmate: game.chess.isCheckmate(),

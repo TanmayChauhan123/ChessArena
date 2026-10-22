@@ -1,0 +1,420 @@
+.computer-page {
+  min-height: 100vh;
+  background: #101613;
+  color: #f3f0e8;
+  font-family: inherit;
+}
+
+.computer-header {
+  min-height: 76px;
+  padding: 0 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #29342d;
+}
+
+.computer-logo,
+.computer-back {
+  background: none;
+  border: 0;
+  color: #f3f0e8;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition:
+    font-weight 0.2s ease,
+    color 0.2s ease;
+}
+
+.computer-logo {
+  font-size: 21px;
+}
+
+.computer-logo:hover,
+.computer-back:hover {
+  color: #e2bb71;
+  font-weight: 800;
+}
+
+.computer-badge,
+.computer-level,
+.computer-turn {
+  color: #e2bb71;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.computer-content {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+  padding: 46px 0 70px;
+}
+
+.computer-intro {
+  margin-bottom: 32px;
+}
+
+.computer-eyebrow,
+.computer-card-label {
+  color: #d9ad60;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+}
+
+.computer-intro h1 {
+  margin: 12px 0;
+  font-size: clamp(30px, 4vw, 46px);
+  letter-spacing: -1.5px;
+}
+
+.computer-intro > p:last-child {
+  color: #a9b3aa;
+  font-size: 14px;
+}
+
+.computer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.computer-board-panel,
+.computer-card {
+  border: 1px solid #303b33;
+  border-radius: 16px;
+  background: #18211b;
+}
+
+.computer-board-panel {
+  padding: 20px;
+}
+
+.computer-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 8px 2px 14px;
+}
+
+.computer-player-bottom {
+  padding: 14px 2px 0;
+}
+
+.computer-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #29372d;
+  color: #e2bb71;
+  font-size: 24px;
+}
+
+.computer-player > div {
+  display: grid;
+  gap: 4px;
+}
+
+.computer-player strong {
+  font-size: 13px;
+}
+
+.computer-player small {
+  color: #94a197;
+  font-size: 11px;
+}
+
+.computer-level,
+.computer-turn {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.computer-board {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid #0b100c;
+  border-radius: 3px;
+}
+
+.computer-square {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.computer-light {
+  background: #e6dfcb;
+}
+
+.computer-dark {
+  background: #718b70;
+}
+
+.computer-square:disabled {
+  cursor: default;
+}
+
+.computer-square.computer-selected {
+  box-shadow: inset 0 0 0 4px #e9bd61;
+}
+
+.computer-square.computer-legal::after {
+  content: "";
+  position: absolute;
+  width: 24%;
+  height: 24%;
+  border-radius: 50%;
+  background: rgb(20 35 22 / 38%);
+}
+
+.computer-square.computer-legal:has(.computer-piece)::after {
+  width: 88%;
+  height: 88%;
+  background: transparent;
+  border: 4px solid rgb(20 35 22 / 38%);
+  box-sizing: border-box;
+}
+
+.computer-piece {
+  z-index: 1;
+  line-height: 1;
+  font-family: "DejaVu Sans", "Segoe UI Symbol", serif;
+  font-size: clamp(22px, 4.5vw, 48px);
+  user-select: none;
+}
+
+.white-piece {
+  color: #fffdf4;
+  -webkit-text-stroke: 1px #30372f;
+  text-shadow: 0 2px 2px rgb(0 0 0 / 45%);
+}
+
+.black-piece {
+  color: #202721;
+  text-shadow: 0 1px 1px rgb(255 255 255 / 22%);
+}
+
+.computer-rank,
+.computer-file {
+  position: absolute;
+  z-index: 2;
+  color: #243127;
+  font-size: clamp(8px, 1vw, 11px);
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.computer-rank {
+  top: 3px;
+  left: 4px;
+}
+
+.computer-file {
+  right: 4px;
+  bottom: 2px;
+}
+
+.computer-sidebar {
+  display: grid;
+  gap: 16px;
+}
+
+.computer-card {
+  padding: 20px;
+}
+
+.computer-card-label {
+  margin: 0 0 12px;
+}
+
+.computer-card h2 {
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.computer-status,
+.computer-hint,
+.computer-empty {
+  color: #aab4ab;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.computer-loading {
+  color: #e2bb71;
+  font-size: 12px;
+}
+
+.computer-error {
+  color: #ff9a8d;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.computer-card select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #465448;
+  border-radius: 8px;
+  outline: none;
+  background: #111913;
+  color: #f3f0e8;
+  font: inherit;
+}
+
+.computer-hint {
+  margin-bottom: 0;
+}
+
+.computer-moves-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.computer-moves-heading > span {
+  color: #aab4ab;
+  font-size: 11px;
+}
+
+.computer-move-list {
+  display: grid;
+  gap: 5px;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.computer-move-row {
+  display: grid;
+  grid-template-columns: 34px 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #202b23;
+  font-size: 12px;
+}
+
+.computer-move-row span:first-child {
+  color: #8e9d91;
+}
+
+.computer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.computer-primary-action,
+.computer-secondary-action {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d8ad5a;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    font-weight 0.2s ease;
+}
+
+.computer-primary-action {
+  background: #d8ad5a;
+  color: #171b15;
+}
+
+.computer-secondary-action {
+  background: transparent;
+  color: #e9d5a9;
+}
+
+.computer-primary-action:hover,
+.computer-secondary-action:hover {
+  transform: translateY(-2px);
+  font-weight: 800;
+}
+
+.computer-secondary-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 850px) {
+  .computer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .computer-sidebar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .computer-sidebar > :nth-child(3),
+  .computer-sidebar > .computer-actions {
+    grid-column: 1 / -1;
+  }
+
+  .computer-piece {
+    font-size: clamp(22px, 7vw, 46px);
+  }
+}
+
+@media (max-width: 520px) {
+  .computer-header {
+    padding: 0 4%;
+  }
+
+  .computer-logo {
+    font-size: 17px;
+  }
+
+  .computer-badge {
+    font-size: 8px;
+  }
+
+  .computer-content {
+    width: 94%;
+    padding-top: 30px;
+  }
+
+  .computer-board-panel {
+    padding: 10px;
+  }
+
+  .computer-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .computer-sidebar > :nth-child(3),
+  .computer-sidebar > .computer-actions {
+    grid-column: auto;
+  }
+
+  .computer-player {
+    gap: 8px;
+  }
+
+  .computer-level,
+  .computer-turn {
+    font-size: 8px;
+    letter-spacing: 0.5px;
+  }
+}

@@ -121,7 +121,7 @@ function Dashboard() {
             className="dashboard-primary"
             onClick={() => navigate("/play")}
           >
-            ♟ Play Chess
+            ♟ Play vs Real Player
           </button>
 
           <button
@@ -179,7 +179,7 @@ function Dashboard() {
           className="dashboard-primary"
           onClick={() => navigate("/history")}
         >
-          View Game History 
+          View Game History
         </button>
       </section>
 

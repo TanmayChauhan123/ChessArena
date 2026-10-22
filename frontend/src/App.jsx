@@ -6,6 +6,7 @@ import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Play from "./pages/Play.jsx";
 import GameHistory from "./pages/GameHistory.jsx";
+import PlayComputer from "./pages/PlayComputer.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/play" element={<Play />} />
         <Route path="/history" element={<GameHistory />} />
+        <Route path="/computer" element={<PlayComputer />} />
       </Routes>
     </BrowserRouter>
   );

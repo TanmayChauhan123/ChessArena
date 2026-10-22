@@ -23,6 +23,66 @@ function Play() {
   const [moveFrom, setMoveFrom] = useState(null);
   const [gameResult, setGameResult] = useState(null);
   const [ratingChanges, setRatingChanges] = useState(null);
+  const isInGame = Boolean(game);
+  const currentTurn = game?.fen?.split(" ")[1];
+  const isYourTurn =
+    (role === "white" && currentTurn === "w") ||
+    (role === "black" && currentTurn === "b");
+
+  const MATERIAL_VALUES = {
+    p: 1,
+    n: 3,
+    b: 3,
+    r: 5,
+    q: 9,
+  };
+
+  const PIECE_SYMBOLS = {
+    w: {
+      p: "♙",
+      n: "♘",
+      b: "♗",
+      r: "♖",
+      q: "♕",
+    },
+    b: {
+      p: "♟",
+      n: "♞",
+      b: "♝",
+      r: "♜",
+      q: "♛",
+    },
+  };
+
+  const captures = (game?.history || [])
+    .filter((move) => move.captured)
+    .map((move, index) => ({
+      id: `${index}-${move.from}-${move.to}`,
+      capturedBy: move.color === "w" ? "white" : "black",
+      capturedPiece: move.captured,
+      capturedColor: move.color === "w" ? "b" : "w",
+      value: MATERIAL_VALUES[move.captured] || 0,
+    }));
+
+  const capturedByWhite = captures.filter(
+    (capture) => capture.capturedBy === "white",
+  );
+
+  const capturedByBlack = captures.filter(
+    (capture) => capture.capturedBy === "black",
+  );
+
+  const whiteMaterial = capturedByWhite.reduce(
+    (total, capture) => total + capture.value,
+    0,
+  );
+
+  const blackMaterial = capturedByBlack.reduce(
+    (total, capture) => total + capture.value,
+    0,
+  );
+
+  const materialAdvantage = whiteMaterial - blackMaterial;
 
   useEffect(() => {
     const token = localStorage.getItem("chessarena_token");
@@ -230,6 +290,46 @@ function Play() {
     setStatus("Create a game or join a room.");
     setError("");
   };
+  const renderCaptureTray = (playerColor) => {
+    const playerCaptures =
+      playerColor === "white" ? capturedByWhite : capturedByBlack;
+
+    return (
+      <div className="capture-tray">
+        <span className="capture-tray-label">
+          {playerColor === "white" ? "White captured" : "Black captured"}
+        </span>
+
+        <div className="captured-pieces">
+          {playerCaptures.map((capture) => (
+            <span
+              key={capture.id}
+              className={`captured-piece ${
+                capture.capturedColor === "w" ? "white-piece" : "black-piece"
+              }`}
+              title={`${capture.capturedColor === "w" ? "White" : "Black"} ${capture.capturedPiece}`}
+            >
+              {PIECE_SYMBOLS[capture.capturedColor][capture.capturedPiece]}
+            </span>
+          ))}
+
+          {playerCaptures.length === 0 && (
+            <span className="capture-empty">No captures yet</span>
+          )}
+        </div>
+
+        <span className="capture-material">
+          {playerColor === "white"
+            ? materialAdvantage > 0
+              ? `+${materialAdvantage}`
+              : ""
+            : materialAdvantage < 0
+              ? `+${Math.abs(materialAdvantage)}`
+              : ""}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <main className="play-page">
@@ -242,58 +342,62 @@ function Play() {
         </span>
       </header>
 
-      <section className="play-content">
-        <div className="play-intro">
-          <p className="play-eyebrow">ONLINE MULTIPLAYER</p>
-          <h1>Make your move.</h1>
-          <p>Challenge another player and put your strategy to the test.</p>
-        </div>
+      <section className={`play-content ${isInGame ? "game-active" : ""}`}>
+        {!isInGame && (
+          <div className="play-intro">
+            <p className="play-eyebrow">ONLINE MULTIPLAYER</p>
+            <h1>Make your move.</h1>
+            <p>Challenge another player and put your strategy to the test.</p>
+          </div>
+        )}
 
         <div className="play-layout">
-          <section className="play-panel">
-            <h2>Find a game</h2>
+          {!isInGame && (
+            <section className="play-panel">
+              <h2>Find a game</h2>
 
-            <button className="play-create" onClick={createGame}>
-              + Create New Game
-            </button>
-
-            <div className="play-separator">OR JOIN A ROOM</div>
-
-            <label htmlFor="roomId">Room ID</label>
-            <input
-              id="roomId"
-              value={roomInput}
-              onChange={(event) => setRoomInput(event.target.value)}
-              placeholder="Enter your opponent's room ID"
-            />
-
-            <button className="play-join" onClick={joinGame}>
-              Join Game
-            </button>
-
-            <p className="play-status">{status}</p>
-            {error && <p className="play-error">{error}</p>}
-
-            {gameId && (
-              <div className="play-room">
-                <span>ROOM ID</span>
-                <strong>{gameId}</strong>
-                <button
-                  onClick={() => navigator.clipboard.writeText(gameId)}
-                  className="play-copy"
-                >
-                  Copy room ID
-                </button>
-                <p>Your side: {role || "Waiting..."}</p>
-              </div>
-            )}
-
-            {game && (
-              <button className="play-join" onClick={leaveGame}>
-                Leave Board View
+              <button className="play-create" onClick={createGame}>
+                + Create New Game
               </button>
-            )}
-          </section>
+
+              <div className="play-separator">OR JOIN A ROOM</div>
+
+              <label htmlFor="roomId">Room ID</label>
+              <input
+                id="roomId"
+                value={roomInput}
+                onChange={(event) => setRoomInput(event.target.value)}
+                placeholder="Enter your opponent's room ID"
+              />
+
+              <button className="play-join" onClick={joinGame}>
+                Join Game
+              </button>
+
+              <p className="play-status">{status}</p>
+              {error && <p className="play-error">{error}</p>}
+
+              {gameId && (
+                <div className="play-room">
+                  <span>ROOM ID</span>
+                  <strong>{gameId}</strong>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(gameId)}
+                    className="play-copy"
+                  >
+                    Copy room ID
+                  </button>
+                  <p>Your side: {role || "Waiting..."}</p>
+                </div>
+              )}
+
+              {game && (
+                <button className="play-join" onClick={leaveGame}>
+                  Leave Board View
+                </button>
+              )}
+            </section>
+          )}
 
           <section className="play-board-panel">
             {gameResult && (
@@ -366,41 +470,83 @@ function Play() {
 
             <div className="play-board-heading">
               <div>
-                <h2>Live board</h2>
+                <h2>{isInGame ? "Match in progress" : "Live board"}</h2>
                 <p>{game ? `Room ${gameId}` : "Your next match awaits"}</p>
               </div>
-              {role && <span className="play-role">{role}</span>}
+
+              <div className="play-arena-controls">
+                {role && <span className="play-role">{role}</span>}
+
+                {isInGame && (
+                  <button className="play-arena-leave" onClick={leaveGame}>
+                    Leave Game
+                  </button>
+                )}
+              </div>
             </div>
 
             {board.length > 0 ? (
-              <div className="chess-board">
-                {Array.from({ length: 8 }, (_, displayRow) => {
-                  const row = role === "black" ? 7 - displayRow : displayRow;
+              <>
+                {renderCaptureTray(role === "white" ? "black" : "white")}
+                <div className="chess-board">
+                  {Array.from({ length: 8 }, (_, displayRow) => {
+                    const row = role === "black" ? 7 - displayRow : displayRow;
 
-                  return Array.from({ length: 8 }, (_, displayCol) => {
-                    const col = role === "black" ? 7 - displayCol : displayCol;
-                    const piece = board[row]?.[col];
+                    return Array.from({ length: 8 }, (_, displayCol) => {
+                      const col =
+                        role === "black" ? 7 - displayCol : displayCol;
+                      const piece = board[row]?.[col];
 
-                    const isLight = (row + col) % 2 === 0;
-                    const selected =
-                      moveFrom?.row === row && moveFrom?.col === col;
+                      const isLight = (row + col) % 2 === 0;
+                      const selected =
+                        moveFrom?.row === row && moveFrom?.col === col;
 
-                    return (
-                      <button
-                        key={`${row}-${col}`}
-                        disabled={game?.status !== "active" || !!gameResult}
-                        className={`chess-square ${
-                          isLight ? "light-square" : "dark-square"
-                        } ${selected ? "selected-square" : ""}`}
-                        onClick={() => selectSquare(row, col)}
-                        aria-label={`${"abcdefgh"[col]}${8 - row}`}
-                      >
-                        {pieceSymbol(piece)}
-                      </button>
-                    );
-                  });
-                })}
-              </div>
+                      const square = `${"abcdefgh"[col]}${8 - row}`;
+
+                      const legalMoves =
+                        moveFrom && game?.fen
+                          ? (() => {
+                              try {
+                                const chess = new Chess(game.fen);
+                                const from = `${"abcdefgh"[moveFrom.col]}${8 - moveFrom.row}`;
+
+                                return chess.moves({
+                                  square: from,
+                                  verbose: true,
+                                });
+                              } catch {
+                                return [];
+                              }
+                            })()
+                          : [];
+
+                      const isLegalTarget = legalMoves.some(
+                        (move) => move.to === square,
+                      );
+                      const isCaptureTarget = legalMoves.some(
+                        (move) => move.to === square && move.captured,
+                      );
+
+                      return (
+                        <button
+                          key={`${row}-${col}`}
+                          disabled={game?.status !== "active" || !!gameResult}
+                          className={`chess-square ${
+                            isLight ? "light-square" : "dark-square"
+                          } ${selected ? "selected-square" : ""} ${
+                            isLegalTarget ? "legal-target" : ""
+                          } ${isCaptureTarget ? "capture-target" : ""}`}
+                          onClick={() => selectSquare(row, col)}
+                          aria-label={`${"abcdefgh"[col]}${8 - row}`}
+                        >
+                          {pieceSymbol(piece)}
+                        </button>
+                      );
+                    });
+                  })}
+                </div>
+                {renderCaptureTray(role === "white" ? "white" : "black")}
+              </>
             ) : (
               <div className="play-board-placeholder">
                 <span>♜</span>
@@ -410,17 +556,21 @@ function Play() {
               </div>
             )}
 
-            <p className="play-board-note">
-              {game
-                ? "Select a piece, then select its destination square."
-                : "Create a room or join an existing room to begin."}
-            </p>
-
-            <p className="play-board-note">
-              {game
-                ? "Select a piece, then select its destination square."
-                : "Create a room or join an existing room to begin."}
-            </p>
+            <div className="play-board-note">
+              {!game
+                ? "Create a room or join an existing room to begin."
+                : error
+                  ? error
+                  : gameResult || game.status !== "active"
+                    ? status
+                    : role === "spectator"
+                      ? "You're watching this game."
+                      : isYourTurn
+                        ? moveFrom
+                          ? "Choose a highlighted destination, or select another piece."
+                          : "Your turn. Select a piece to see its legal moves."
+                        : "Opponent's turn. Get ready for your next move."}
+            </div>
           </section>
         </div>
       </section>
